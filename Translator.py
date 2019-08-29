@@ -3,13 +3,9 @@ from os import name, system
 from time import sleep
 
 class Curse:
-
     translator = Translator()
-
     in_lan,out_lan = "en","kn"
-
     def clrscr(self): system("cls") if name == "nt" else system("clear")
-
     def pause(self): input("Press any key to continue...")
 
     def lan_allocator(self,lan,io):
