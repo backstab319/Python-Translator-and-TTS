@@ -32,7 +32,8 @@ class Curse:
                 status = 1
         else:
             x = input("Warning! Please enter the language code carefully! Make sure the code is only two characters long.\n1.To go back\nEnter the code\n")
-            if len(x) == 2 and io == 0: self.lan_allocator(x,0)
+            if x == "1": return
+            elif len(x) == 2 and io == 0: self.lan_allocator(x,0)
             elif len(x) == 2 and io == 1: self.lan_allocator(x,1)
             else:
                 print("Invalid input")
@@ -82,7 +83,7 @@ class Curse:
         output_audio = gTTS(text=output.text,lang=self.out_lan,slow=False)
         output_audio.save("audio.mp3")
         playsound("audio.mp3")
-        system("del audio.mp3 /f") if name == "nt" else system("rm audio.mp3")
+        system("del audio.mp3 /f") if name == "nt" else system("rm -f audio.mp3")
         self.pause()
         self.translate_method()
 
