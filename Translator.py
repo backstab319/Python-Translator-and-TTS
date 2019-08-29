@@ -1,4 +1,6 @@
 from googletrans import Translator
+from gtts import gTTS
+from playsound import playsound
 from os import name, system
 from time import sleep
 
@@ -77,6 +79,10 @@ class Curse:
             return
         output = self.translator.translate(x,dest=self.out_lan,src=self.in_lan)
         print(output.text)
+        output_audio = gTTS(text=output.text,lang=self.out_lan,slow=False)
+        output_audio.save("audio.mp3")
+        playsound("audio.mp3")
+        system("del audio.mp3 /f") if name == "nt" else system("rm audio.mp3")
         self.pause()
         self.translate_method()
 
