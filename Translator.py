@@ -3,10 +3,12 @@ from gtts import gTTS
 from playsound import playsound
 from os import name, system
 from time import sleep
+import language_check as lan
 
 class Curse:
     translator = Translator()
-    in_lan,out_lan,tts_status,tts_speed,feeder,feeder_status = "en","kn","on",False,[],"off"
+    in_lan,out_lan,tts_status,tts_speed,feeder,feeder_status,grammar_in,grammar_out = "en","kn","on",False,[],"off","off","off"
+    lang_av = [i for i in lan.get_languages()]
     def clrscr(self): system("cls") if name == "nt" else system("clear")
     def pause(self): input("Press any key to continue...")
     def change_tts(self,setter):
@@ -87,16 +89,33 @@ class Curse:
             self.feeder_screen()
         else: pass
 
+    def grammar_toggle(self,toggle):
+        if toggle in [1,3]: self.grammar_in = "on" if self.grammar_in == "off" else "off"
+        if toggle in [2,3]: self.grammar_out = "on" if self.grammar_out == "off" else "off"
+
+    def grammar_settings(self):
+        self.clrscr()
+        x = input("Attention! Only the supported languages grammar shall be checked!\n1.Toggle Input Grammar Check\n2.Toggle Output Grammar Check\n3.Toggle Both\n0.Go back\n")
+        if x == "1": self.grammar_toggle(1)
+        elif x == "2": self.grammar_toggle(2)
+        elif x == "3": self.grammar_toggle(3)
+        elif x == "0": return
+        else:
+            print("Invalid Input!")
+            self.pause()
+            self.grammar_settings()
+
     def main_screen(self):
         self.clrscr()
-        x = input("Welcome to the translator application\nCurrent Input: "+self.in_lan+" Output: "+self.out_lan+" TTS: "+self.tts_status+" TTS Speed Slow: "+str(self.tts_speed)+" Feeder: "+self.feeder_status+"\n1.Translate\n2.Change the input language\n3.Change output language\n4.Toggle TTS\n5.Toggle TTS speed\n6.Feeder Settings\n7.Exit\n")
+        x = input("Welcome to the translator application\nCurrent Input: "+self.in_lan+" Output: "+self.out_lan+" TTS: "+self.tts_status+" TTS Speed Slow: "+str(self.tts_speed)+" Feeder: "+self.feeder_status+" Chk input "+self.grammar_in+" Chk output "+self.grammar_out+"\n1.Translate\n2.Change the input language\n3.Change output language\n4.Toggle TTS\n5.Toggle TTS speed\n6.Feeder Settings\n7.Grammar Settings\n0.Exit\n")
         if x == "1": self.translate_method()
         elif x == "2": self.change_IO(0)
         elif x == "3": self.change_IO(1)
         elif x == "4": self.change_tts(0)
         elif x == "5": self.change_tts(1)
         elif x == "6": self.feeder_screen()
-        elif x == "7":
+        elif x == "7": self.grammar_settings()
+        elif x == "0":
             self.halt()
             return
         else:
@@ -104,10 +123,28 @@ class Curse:
             self.pause()
         self.main_screen()
 
+    def grammar_correction_in(self,data,datatype):
+        if datatype == "in":
+            lang = self.in_lan
+            tool = lan.LanguageTool(language=lang)
+            matches = tool.check(data)
+            return lan.correct(data, matches)
+
+    def grammar_correction_out(self,data,datatype):
+        if datatype == "out":
+            lang = self.out_lan
+            tool = lan.LanguageTool(language=lang)
+            matches = tool.check(data)
+            return lan.correct(data, matches)
+
     def feeder_iterator(self,feeder):
         self.feeder = feeder
         for i in self.feeder:
+            if (i != self.grammar_correction_in(i,"in")) and (len(feeder) == 1) and (self.grammar_in == "on") and self.in_lan in self.lang_av: print("Correction",self.grammar_correction_in(i,"in"))
+            if (i != self.grammar_correction_in(i,"in")) and (len(feeder) != 1) and (self.grammar_in == "on") and self.in_lan in self.lang_av: print("Correction",self.grammar_correction_in(i,"in"))
             output = self.translator.translate(i,dest=self.out_lan,src=self.in_lan)
+            if output.text != self.grammar_correction_out(output.text,"out") and len(feeder) == 1 and self.grammar_out == "on" and self.out_lan in self.lang_av: print("Correction",self.grammar_correction_out(output.text,"out"))
+            if output.text != self.grammar_correction_out(output.text,"out") and len(feeder) != 1 and self.grammar_out == "on" and self.out_lan in self.lang_av: print("Correction",self.grammar_correction_out(output.text,"out"))
             print(output.text) if len(feeder) == 1 else print(i+"\n"+output.text)
             self.play_text(output.text) if self.tts_status == "on" else 0
         self.feeder.clear()
