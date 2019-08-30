@@ -1,12 +1,23 @@
 from googletrans import Translator
+from gtts import gTTS
+from playsound import playsound
 from os import name, system
 from time import sleep
 
 class Curse:
     translator = Translator()
-    in_lan,out_lan = "en","kn"
+    in_lan,out_lan,tts_status,tts_speed = "en","kn","on",False
     def clrscr(self): system("cls") if name == "nt" else system("clear")
     def pause(self): input("Press any key to continue...")
+    def change_tts(self,setter):
+        if setter == 0: self.tts_status="off" if self.tts_status == "on" else "on"
+        else: self.tts_speed = True if self.tts_speed == False else False
+
+    def play_text(self,text):
+        output_audio = gTTS(text=text,lang=self.out_lan,slow=self.tts_speed)
+        output_audio.save("audio.mp3")
+        playsound("audio.mp3")
+        system("del audio.mp3 /f") if name == "nt" else system("rm -f audio.mp3")
 
     def lan_allocator(self,lan,io):
         if io == 0: self.in_lan = lan
@@ -30,7 +41,8 @@ class Curse:
                 status = 1
         else:
             x = input("Warning! Please enter the language code carefully! Make sure the code is only two characters long.\n1.To go back\nEnter the code\n")
-            if len(x) == 2 and io == 0: self.lan_allocator(x,0)
+            if x == "1": return
+            elif len(x) == 2 and io == 0: self.lan_allocator(x,0)
             elif len(x) == 2 and io == 1: self.lan_allocator(x,1)
             else:
                 print("Invalid input")
@@ -58,11 +70,13 @@ class Curse:
 
     def main_screen(self):
         self.clrscr()
-        x = input("Welcome to the translator application\nCurrent Input "+self.in_lan+" Output "+self.out_lan+"\n1.Translate\n2.Change the input language\n3.Change output language\n4.Exit\n")
+        x = input("Welcome to the translator application\nCurrent Input: "+self.in_lan+" Output: "+self.out_lan+" TTS: "+self.tts_status+" TTS Speed Slow: "+str(self.tts_speed)+"\n1.Translate\n2.Change the input language\n3.Change output language\n4.Toggle TTS\n5.Toggle TTS speed\n6.Exit\n")
         if x == "1": self.translate_method()
         elif x == "2": self.change_IO(0)
         elif x == "3": self.change_IO(1)
-        elif x == "4":
+        elif x == "4": self.change_tts(0)
+        elif x == "5": self.change_tts(1)
+        elif x == "6":
             self.halt()
             return
         else:
@@ -73,10 +87,12 @@ class Curse:
     def translate_method(self):
         self.clrscr()
         x = input("Enter 000 to go back\nPlease enter a string to translate\n")
-        if x == "000":
-            return
-        output = self.translator.translate(x,dest=self.out_lan,src=self.in_lan)
-        print(output.text)
+        if x == "000": return
+        if x != "":
+            output = self.translator.translate(x,dest=self.out_lan,src=self.in_lan)
+            print(output.text)
+            self.play_text(output.text) if self.tts_status == "on" else 0
+        else: print("Cannot be an empty string")
         self.pause()
         self.translate_method()
 
