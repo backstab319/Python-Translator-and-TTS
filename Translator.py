@@ -6,7 +6,7 @@ from time import sleep
 
 class Curse:
     translator = Translator()
-    in_lan,out_lan,tts_status,tts_speed = "en","kn","on",False
+    in_lan,out_lan,tts_status,tts_speed,feeder,feeder_status = "en","kn","on",False,[],"off"
     def clrscr(self): system("cls") if name == "nt" else system("clear")
     def pause(self): input("Press any key to continue...")
     def change_tts(self,setter):
@@ -68,15 +68,35 @@ class Curse:
         sleep(3)
         self.clrscr()
 
+    def feeder_screen(self):
+        self.clrscr()
+        x,rek = input("Select the relevent seetings\n1.Toggle feeder\n2.Load Feeder with data\n3.Show content of feeder\n0.Go back\n"),0
+        if x == "1": self.feeder_status,rek = ("on",1) if self.feeder_status == "off" else ("off",1)
+        elif x == "2":
+            self.feeder.clear()
+            while True:
+                x = input()
+                if x: self.feeder.append(x)
+                else: break
+        elif x == "3": [print(i) if self.feeder != [] else 0 for i in self.feeder]
+        elif x == "0": rek = 1
+        else:
+            print("Invalid Input!")
+        if rek == 0:
+            self.pause()
+            self.feeder_screen()
+        else: pass
+
     def main_screen(self):
         self.clrscr()
-        x = input("Welcome to the translator application\nCurrent Input: "+self.in_lan+" Output: "+self.out_lan+" TTS: "+self.tts_status+" TTS Speed Slow: "+str(self.tts_speed)+"\n1.Translate\n2.Change the input language\n3.Change output language\n4.Toggle TTS\n5.Toggle TTS speed\n6.Exit\n")
+        x = input("Welcome to the translator application\nCurrent Input: "+self.in_lan+" Output: "+self.out_lan+" TTS: "+self.tts_status+" TTS Speed Slow: "+str(self.tts_speed)+" Feeder: "+self.feeder_status+"\n1.Translate\n2.Change the input language\n3.Change output language\n4.Toggle TTS\n5.Toggle TTS speed\n6.Feeder Settings\n7.Exit\n")
         if x == "1": self.translate_method()
         elif x == "2": self.change_IO(0)
         elif x == "3": self.change_IO(1)
         elif x == "4": self.change_tts(0)
         elif x == "5": self.change_tts(1)
-        elif x == "6":
+        elif x == "6": self.feeder_screen()
+        elif x == "7":
             self.halt()
             return
         else:
@@ -84,17 +104,27 @@ class Curse:
             self.pause()
         self.main_screen()
 
+    def feeder_iterator(self,feeder):
+        self.feeder = feeder
+        for i in self.feeder:
+            output = self.translator.translate(i,dest=self.out_lan,src=self.in_lan)
+            print(output.text) if len(feeder) == 1 else print(i+"\n"+output.text)
+            self.play_text(output.text) if self.tts_status == "on" else 0
+        self.feeder.clear()
+
     def translate_method(self):
         self.clrscr()
-        x = input("Enter 000 to go back\nPlease enter a string to translate\n")
-        if x == "000": return
-        if x != "":
-            output = self.translator.translate(x,dest=self.out_lan,src=self.in_lan)
-            print(output.text)
-            self.play_text(output.text) if self.tts_status == "on" else 0
-        else: print("Cannot be an empty string")
-        self.pause()
-        self.translate_method()
+        rek = 0
+        if self.feeder_status == "on" and self.feeder: self.feeder_iterator(self.feeder)
+        else:
+            x = input("Enter 000 to go back\nPlease enter a string to translate\n").split("\n")
+            if "000" in x: rek = 1
+            elif x[0] != "": self.feeder_iterator(x)
+            else: print("Cannot be an empty string")
+        if rek == 1: pass
+        else:
+            self.pause()
+            self.translate_method()
 
 curse = Curse()
 curse.main_screen()
