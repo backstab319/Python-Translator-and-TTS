@@ -9,6 +9,7 @@ import language_check as lan
 class Curse:
     translator = Translator()
     sc = SpellChecker()
+    sc_lang = ["en","es","de","fr"]
     lang_av = [i for i in lan.get_languages()]
     in_lan,out_lan,tts_status,tts_speed,feeder,feeder_status,gramm_status = "en","kn","on",False,[],"off","off"
     def clrscr(self): system("cls") if name == "nt" else system("clear")
@@ -95,7 +96,7 @@ class Curse:
         tool = lan.LanguageTool(self.in_lan)
         matches = tool.check(data)
         if len(matches) > 0: data = lan.correct(data, matches)
-        data = SpellChecker(language=self.in_lan).correction(data)
+        if self.in_lan in self.sc_lang: data = SpellChecker(language=self.in_lan).correction(data)
         return data
 
     def main_screen(self):
