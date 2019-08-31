@@ -3,10 +3,14 @@ from gtts import gTTS
 from playsound import playsound
 from os import name, system
 from time import sleep
+from spellchecker import SpellChecker
+import language_check as lan
 
 class Curse:
     translator = Translator()
-    in_lan,out_lan,tts_status,tts_speed,feeder,feeder_status = "en","kn","on",False,[],"off"
+    sc = SpellChecker()
+    lang_av = [i for i in lan.get_languages()]
+    in_lan,out_lan,tts_status,tts_speed,feeder,feeder_status,gramm_status = "en","kn","on",False,[],"off","off"
     def clrscr(self): system("cls") if name == "nt" else system("clear")
     def pause(self): input("Press any key to continue...")
     def change_tts(self,setter):
@@ -29,7 +33,7 @@ class Curse:
         if method == 0:
             x = input("1.English\n2.Hindi\n3.Kannada\n4.Telugu\n5.Malayalam\n6.Tamil\n7.Go back\n")
             if x == "1": self.lan_allocator("en",0) if io == 0 else self.lan_allocator("en",1)
-            elif x == "2": self.lan_allocator("h1",0) if io == 0 else self.lan_allocator("hi",1)
+            elif x == "2": self.lan_allocator("hi",0) if io == 0 else self.lan_allocator("hi",1)
             elif x == "3": self.lan_allocator("kn",0) if io == 0 else self.lan_allocator("kn",1)
             elif x == "4": self.lan_allocator("te",0) if io == 0 else self.lan_allocator("te",1)
             elif x == "5": self.lan_allocator("ml",0) if io == 0 else self.lan_allocator("ml",1)
@@ -87,16 +91,24 @@ class Curse:
             self.feeder_screen()
         else: pass
 
+    def grammar_check(self,data):
+        tool = lan.LanguageTool(self.in_lan)
+        matches = tool.check(data)
+        if len(matches) > 0: data = lan.correct(data, matches)
+        data = SpellChecker(language=self.in_lan).correction(data)
+        return data
+
     def main_screen(self):
         self.clrscr()
-        x = input("Welcome to the translator application\nCurrent Input: "+self.in_lan+" Output: "+self.out_lan+" TTS: "+self.tts_status+" TTS Speed Slow: "+str(self.tts_speed)+" Feeder: "+self.feeder_status+"\n1.Translate\n2.Change the input language\n3.Change output language\n4.Toggle TTS\n5.Toggle TTS speed\n6.Feeder Settings\n7.Exit\n")
+        x = input("Welcome to the translator application\nCurrent Input: "+self.in_lan+" Output: "+self.out_lan+" TTS: "+self.tts_status+" TTS Speed Slow: "+str(self.tts_speed)+" Feeder: "+self.feeder_status+" Grammar check "+self.gramm_status+"\n1.Translate\n2.Change the input language\n3.Change output language\n4.Toggle TTS\n5.Toggle TTS speed\n6.Feeder Settings\n7.Toggle Grammar\n0.Exit\n")
         if x == "1": self.translate_method()
         elif x == "2": self.change_IO(0)
         elif x == "3": self.change_IO(1)
         elif x == "4": self.change_tts(0)
         elif x == "5": self.change_tts(1)
         elif x == "6": self.feeder_screen()
-        elif x == "7":
+        elif x == "7": self.gramm_status = "on" if self.gramm_status == "off" else "off"
+        elif x == "0":
             self.halt()
             return
         else:
@@ -107,6 +119,9 @@ class Curse:
     def feeder_iterator(self,feeder):
         self.feeder = feeder
         for i in self.feeder:
+            if self.gramm_status == "on" and self.in_lan in self.lang_av:
+                j,i = i,self.grammar_check(i)
+                print(j) if i is j else print("Correction:",i)
             output = self.translator.translate(i,dest=self.out_lan,src=self.in_lan)
             print(output.text) if len(feeder) == 1 else print(i+"\n"+output.text)
             self.play_text(output.text) if self.tts_status == "on" else 0
