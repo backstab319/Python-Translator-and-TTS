@@ -7,6 +7,10 @@ from spellchecker import SpellChecker
 import language_check as lan
 
 class Curse:
+    '''
+Perform transalation, Text to speech, correct grammar, correct spelling etc from various available languages. Or add your own using the two letter
+code of that language.
+    '''
     translator = Translator()
     sc = SpellChecker()
     sc_lang = ["en","es","de","fr"]
