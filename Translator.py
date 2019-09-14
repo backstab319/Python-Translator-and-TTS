@@ -33,21 +33,35 @@ class Curse:
     def man_installer(self):
         self.clrscr()
         print('''
-            Developed using python3 and packages used from pip3\n
-            Please install the following packages on pip3\n
-            1.googletrans\n
-            2.gTTS\n
-            3.playsound\n
-            4.pyspellchecker\n
-            5.language-check\n
-            6.default-jdk (if you get java error from language-check module)
+Developed using python3 and packages used from pip3
+Please install the following packages on pip3
+1.googletrans
+2.gTTS
+3.playsound
+4.pyspellchecker
+5.language-check
+6.default-jdk (if you get java error from language-check module)
             ''')
         self.pause()
 
     def auto_installer(self):
         self.clrscr()
-        print("Module under construction!")
-        self.pause()
+        input('''
+Make sure you have the following setup before initiating pressing any keys
+1.Run the application with admin rights for windows or as sudo for linux
+2.An active internet connection
+3.Set up pip3
+        ''')
+        packages_ub = ["googletrans","gTTS","playsound","pyspellchecker","language-check","default-jdk"]
+        packages_win = ["googletrans","gTTS","playsound","pyspellchecker","language-check"]
+        self.insScripts(packages_ub) if name != "nt" else self.insScripts(packages_win)
+        input("Installation complete!\nPress any key to continue...")
+
+    def insScripts(self,packages):
+        for i in packages:
+            sysStr = "pip3 install "+str(i)
+            sysStr_check = "pip3 show "+i
+            system(sysStr) if system(sysStr_check) != 0 else print("Package",i,"already installed")
 
     def play_text(self,text):
         output_audio = gTTS(text=text,lang=self.out_lan,slow=self.tts_speed)
