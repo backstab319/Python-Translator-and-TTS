@@ -18,6 +18,37 @@ class Curse:
         if setter == 0: self.tts_status="off" if self.tts_status == "on" else "on"
         else: self.tts_speed = True if self.tts_speed == False else False
 
+    def installer(self):
+        self.clrscr()
+        rek = 0
+        x = input("1.Manual installation\n2.Automatic installation\n3.Go back\n")
+        if x == "1": self.man_installer()
+        elif x == "2": self.auto_installer()
+        elif x == "3": rek = 1
+        else:
+            print("Invalid input!")
+            self.pause()
+        self.installer() if rek == 0 else 0
+
+    def man_installer(self):
+        self.clrscr()
+        print('''
+            Developed using python3 and packages used from pip3\n
+            Please install the following packages on pip3\n
+            1.googletrans\n
+            2.gTTS\n
+            3.playsound\n
+            4.pyspellchecker\n
+            5.language-check\n
+            6.default-jdk (if you get java error from language-check module)
+            ''')
+        self.pause()
+
+    def auto_installer(self):
+        self.clrscr()
+        print("Module under construction!")
+        self.pause()
+
     def play_text(self,text):
         output_audio = gTTS(text=text,lang=self.out_lan,slow=self.tts_speed)
         output_audio.save("audio.mp3")
@@ -101,7 +132,7 @@ class Curse:
 
     def main_screen(self):
         self.clrscr()
-        x = input("Welcome to the translator application\nCurrent Input: "+self.in_lan+" Output: "+self.out_lan+" TTS: "+self.tts_status+" TTS Speed Slow: "+str(self.tts_speed)+" Feeder: "+self.feeder_status+" Grammar check "+self.gramm_status+"\n1.Translate\n2.Change the input language\n3.Change output language\n4.Toggle TTS\n5.Toggle TTS speed\n6.Feeder Settings\n7.Toggle Grammar\n0.Exit\n")
+        x = input("Welcome to the translator application\nCurrent Input: "+self.in_lan+" Output: "+self.out_lan+" TTS: "+self.tts_status+" TTS Speed Slow: "+str(self.tts_speed)+" Feeder: "+self.feeder_status+" Grammar check "+self.gramm_status+"\n1.Translate\n2.Change the input language\n3.Change output language\n4.Toggle TTS\n5.Toggle TTS speed\n6.Feeder Settings\n7.Toggle Grammar\n8.Install dependencies\n0.Exit\n")
         if x == "1": self.translate_method()
         elif x == "2": self.change_IO(0)
         elif x == "3": self.change_IO(1)
@@ -109,6 +140,7 @@ class Curse:
         elif x == "5": self.change_tts(1)
         elif x == "6": self.feeder_screen()
         elif x == "7": self.gramm_status = "on" if self.gramm_status == "off" else "off"
+        elif x == "8": self.installer()
         elif x == "0":
             self.halt()
             return
